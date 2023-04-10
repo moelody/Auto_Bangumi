@@ -1,6 +1,7 @@
 import logging
 import os.path
 import re
+import asyncio
 from pathlib import PurePath, PureWindowsPath
 
 from module.core.download_client import DownloadClient
@@ -32,6 +33,7 @@ class Renamer:
     def split_path(path: str):
         suffix = os.path.splitext(path)[-1]
         path = path.replace(settings.downloader.path, "")
+        path = path.removeprefix(os.sep)
         path_parts = PurePath(path).parts \
             if PurePath(path).name != path \
             else PureWindowsPath(path).parts
@@ -52,6 +54,14 @@ class Renamer:
             download_path = ""
         return path_name, season, folder_name, suffix, download_path
 
+    @staticmethod
+    async def delete_dir(path):
+        while True:
+            if os.path.isdir(path) and not os.listdir(path):
+                os.rmdir(path)
+                break
+            await asyncio.sleep(1)
+
     def run(self):
         recent_info, torrent_count = self.get_torrent_info()
         rename_count = 0
@@ -64,6 +74,13 @@ class Renamer:
             else:
                 try:
                     new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
+                    new_path = os.path.join(settings.downloader.path, folder_name)
+                    logger.warning(f"info: {info.save_path}")
+                    logger.warning(f"info: {new_path}")
+                    if info.save_path != new_path:
+                        self.client.move_torrent(torrent_hash, new_path)
+                        asyncio.run(self.delete_dir(info.save_path))
+                        logger.info(f"Move {path_name} {info.save_path} << {new_path}")
                     if path_name != new_name:
                         old_path = info.content_path.replace(info.save_path, "")
                         old_path = old_path[len(os.path.sep):]
@@ -72,6 +89,8 @@ class Renamer:
                     else:
                         continue
                 except Exception as e:
+                    logger.warning(f"info: {info.content_path}")
+                    logger.warning(f"name: {name}")
                     logger.warning(f"{path_name} rename failed")
                     logger.warning(f"Folder name: {folder_name}, Season: {season}, Suffix: {suffix}")
                     logger.debug(e)
@@ -84,7 +103,8 @@ class Renamer:
         for info in recent_info:
             torrent_hash = info.hash
             _, season, folder_name, _, download_path = self.split_path(info.content_path)
-            new_path = os.path.join(settings.downloader.path, folder_name, f"Season {season}")
+            # new_path = os.path.join(settings.downloader.path, folder_name, f"Season {season}")
+            new_path = os.path.join(settings.downloader.path, folder_name)
             # print(new_path)
             self.client.move_torrent(torrent_hash, new_path)
 

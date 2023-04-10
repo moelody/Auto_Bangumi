@@ -9,38 +9,38 @@ DEFAULT_SETTINGS = {
     },
     "downloader": {
         "type": "qbittorrent",
-        "host": "127.0.0.1:8080",
-        "username": "admin",
-        "password": "adminadmin",
-        "path": "/downloads/Bangumi",
+        "host": "127.0.0.1:8989",
+        "username": "moelody",
+        "password": "145208",
+        "path": "M:\\Anime\\",
         "ssl": False
     },
     "rss_parser": {
         "enable": True,
         "type": "mikan",
-        "link": "",
-        "enable_tmdb": False,
+        "link": "https://mikanani.me/RSS/MyBangumi?token=ujCfiGK5yqqqR6hyBMBnYw%3d%3d",
+        "enable_tmdb": True,
         "filter": ["720", "\\d+-\\d+"],
         "language": "zh"
     },
     "bangumi_manage": {
         "enable": True,
         "eps_complete": False,
-        "rename_method": "pn",
-        "group_tag": False,
+        "rename_method": "advance",
+        "group_tag": True,
         "remove_bad_torrent": False
     },
     "debug": {
-        "enable": False,
+        "enable": True,
         "level": "info",
         "file": "bangumi.log",
-        "dev_debug": False
+        "dev_debug": True
     },
     "proxy": {
-        "enable": False,
+        "enable": True,
         "type": "http",
-        "host": "",
-        "port": 1080,
+        "host": "127.0.0.1",
+        "port": 4780,
         "username": "",
         "password": ""
     },
