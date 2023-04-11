@@ -20,7 +20,7 @@ class RSSAnalyser:
         for torrent in rss_torrents:
             raw_title = torrent.name
             extra_add = True
-            if bangumi_info is not []:
+            if bangumi_info != []:
                 for d in bangumi_info:
                     if re.search(d["title_raw"], raw_title) is not None:
                         logger.debug(f"Had added {d['title_raw']} in auto_download rule before")

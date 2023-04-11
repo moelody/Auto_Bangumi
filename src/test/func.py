@@ -34,5 +34,6 @@ def set_folder():
     print(suffix)
     print(download_path)
 
-old = r'\偶像大师 灰姑\娘女孩 U149 S01E0\1.mkv'
-print(old.removeprefix(os.sep))
+new_path = r'[LoliHouse]Edomae Elf Season 1[1080p][WebRip][简繁内封字幕]'
+
+print(re.search(r"Season (\d{1,2})", new_path).group(1))

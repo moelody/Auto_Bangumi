@@ -57,7 +57,7 @@ def show_info():
 
 
 def main_process(bangumi_data, download_client: DownloadClient):
-    rename = Renamer(download_client)
+    rename = Renamer(download_client, bangumi_data["bangumi_info"])
     rss_analyser = RSSAnalyser()
     while True:
         times = 0

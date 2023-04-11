@@ -37,7 +37,8 @@ class FullSeasonGet:
                 "save_path": os.path.join(
                         settings.downloader.path,
                         data["official_title"],
-                        f"Season {data['season']}")
+                        f"[{data['group']}]{data['title_raw']} Season {data['season']}[{data['dpi']}][{data['source']}][{data['subtitle']}]"
+                        )
             }
             downloads.append(download_info)
         return downloads
