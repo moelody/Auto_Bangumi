@@ -12,6 +12,7 @@ DEFAULT_SETTINGS = {
         "host": "127.0.0.1:8989",
         "username": "moelody",
         "password": "145208",
+        "path": "E:\\Anime\\",
         "ssl": False
     },
     "rss_parser": {
