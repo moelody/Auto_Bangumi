@@ -12,7 +12,6 @@ DEFAULT_SETTINGS = {
         "host": "127.0.0.1:8989",
         "username": "moelody",
         "password": "145208",
-        "path": "M:\\Anime\\",
         "ssl": False
     },
     "rss_parser": {
@@ -31,10 +30,10 @@ DEFAULT_SETTINGS = {
         "remove_bad_torrent": False
     },
     "debug": {
-        "enable": True,
+        "enable": False,
         "level": "info",
         "file": "bangumi.log",
-        "dev_debug": True
+        "dev_debug": False
     },
     "proxy": {
         "enable": True,

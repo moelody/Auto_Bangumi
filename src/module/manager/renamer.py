@@ -75,8 +75,6 @@ class Renamer:
                 try:
                     new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
                     new_path = os.path.join(settings.downloader.path, folder_name)
-                    logger.warning(f"info: {info.save_path}")
-                    logger.warning(f"info: {new_path}")
                     if info.save_path != new_path:
                         self.client.move_torrent(torrent_hash, new_path)
                         asyncio.run(self.delete_dir(info.save_path))

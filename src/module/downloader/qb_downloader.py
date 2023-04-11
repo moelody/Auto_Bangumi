@@ -83,8 +83,11 @@ class QbDownloader:
             logger.info("Add new RSS")
             raise ConflictError()
 
-    def rss_set_rule(self, rule_name, rule_def):
-        self._client.rss_set_rule(rule_name, rule_def)
+    def rss_set_rule(self, rule_name, rule_def, **kwargs):
+        self._client.rss_set_rule(rule_name, rule_def, **kwargs)
+        
+    def rss_remove_rule(self, rule_name, **kwargs):
+        self._client.rss_remove_rule(rule_name, **kwargs)
 
     def move_torrent(self, hashes, new_location):
         self._client.torrents_set_location(new_location, hashes)

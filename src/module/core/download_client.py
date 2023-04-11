@@ -44,13 +44,19 @@ class DownloadClient:
                 os.path.join(
                     settings.downloader.path,
                     re.sub(r"[:/.]", " ", official_name).strip(),
-                    f"Season {season}",
+                    # f"Season {season}",
                 )
             ),
         }
         rule_name = f"[{group}] {official_name}" if settings.bangumi_manage.group_tag else official_name
         self.client.rss_set_rule(rule_name=f"{rule_name} S{season}", rule_def=rule)
         logger.info(f"Add {official_name} Season {season}")
+
+    def remove_rule(self, info: dict):
+        official_name, raw_name, season, group = info["official_title"], info["title_raw"], info["season"], info["group"]
+        rule_name = f"[{group}] {official_name}" if settings.bangumi_manage.group_tag else official_name
+        self.client.rss_remove_rule(rule_name=f"{rule_name} S{season}")
+        logger.info(f"Remove {official_name} Season {season}")
 
     def rss_feed(self):
         # TODO: 定时刷新 RSS
@@ -71,6 +77,9 @@ class DownloadClient:
             if not info["added"]:
                 self.set_rule(info, rss_link)
                 info["added"] = True
+            elif settings.debug.dev_debug:
+                self.remove_rule(info)
+                self.set_rule(info, rss_link)
         # logger.info("to rule.")
         logger.debug("Finished.")
 
