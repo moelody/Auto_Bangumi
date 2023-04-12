@@ -54,10 +54,10 @@ class DownloadClient:
             settings.downloader.path = os.path.join(prefs["save_path"], "Bangumi")
 
     def replaceUnsafeStr(self, str):
-        for name in self.windowsReservedNames:
-            if str.upper() == name:
-                return str + 'UnsafeName'
-        str = self.unsafeStr.sub('', str)
+        # for name in self.windowsReservedNames:
+        #     if str.upper() == name:
+        #         return str + 'UnsafeName'
+        # str = self.unsafeStr.sub('', str)
         # 把一些特殊字符替换成全角字符
         for index in range(len(self.fullWidthDict)):
             rule = self.fullWidthDict[index]
@@ -84,7 +84,7 @@ class DownloadClient:
                 os.path.join(
                     settings.downloader.path,
                     re.sub(r"[:/.]", " ", official_name).strip(),
-                    self.replaceUnsafeStr(f"[{group}]{raw_name} Season {season}[{dpi}][{source}][{subtitle}]"),
+                    self.replaceUnsafeStr(f"[Season {season}][{group}]{raw_name}[{dpi}][{source}][{subtitle}]"),
                 )
             ),
         }
