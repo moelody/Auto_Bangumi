@@ -14,9 +14,10 @@ class RSSAnalyser:
     def __init__(self):
         self._title_analyser = TitleParser()
 
-    def rss_to_datas(self, bangumi_info: list) -> list:
+    def rss_to_datas(self, bangumi_info: list, download_client: DownloadClient) -> list:
         with RequestContent() as req:
             rss_torrents = req.get_torrents(settings.rss_parser.link)
+        current_info = []
         for torrent in rss_torrents:
             raw_title = torrent.name
             extra_add = True
@@ -25,11 +26,20 @@ class RSSAnalyser:
                     if re.search(d["title_raw"], raw_title) is not None:
                         logger.debug(f"Had added {d['title_raw']} in auto_download rule before")
                         extra_add = False
+                        current_info.append(d["title_raw"])
                         break
             if extra_add:
                 data = self._title_analyser.return_dict(raw_title)
-                if data is not None and data["official_title"] not in bangumi_info:
-                    bangumi_info.append(data)
+                if data is not None:
+                    current_info.append(data["title_raw"])
+                    if data["official_title"] not in bangumi_info:
+                        bangumi_info.append(data)
+        
+        for d in bangumi_info:
+            if d["title_raw"] not in current_info:
+                bangumi_info.remove(d)
+                # logger.info(f'{d["title_raw"]}: {d["title_raw"] not in current_info}')
+
         return bangumi_info
 
     def rss_to_data(self, url) -> dict:
@@ -45,7 +55,7 @@ class RSSAnalyser:
     def run(self, bangumi_info: list, download_client: DownloadClient):
         logger.info("Start collecting RSS info.")
         try:
-            self.rss_to_datas(bangumi_info)
+            self.rss_to_datas(bangumi_info, download_client)
             download_client.add_rules(bangumi_info, rss_link=settings.rss_parser.link)
         except Exception as e:
             logger.debug(e)

@@ -7,6 +7,8 @@ from module.network import RequestContent
 
 from module.core.download_client import DownloadClient
 
+from module.utils import replaceUnsafeStr
+
 logger = logging.getLogger(__name__)
 SEARCH_KEY = ["group", "title_raw", "season_raw", "subtitle", "source", "dpi"]
 
@@ -31,13 +33,14 @@ class FullSeasonGet:
     @staticmethod
     def collect_season_torrents(data: dict, torrents):
         downloads = []
+        official_name, raw_name, season, group, dpi, source, subtitle = data["official_title"], data["title_raw"], data["season"], data["group"], data["dpi"], data["source"], data["subtitle"]
         for torrent in torrents:
             download_info = {
                 "url": torrent.torrent_link,
                 "save_path": os.path.join(
                         settings.downloader.path,
-                        data["official_title"],
-                        f"[{data['group']}]{data['title_raw']} Season {data['season']}[{data['dpi']}][{data['source']}][{data['subtitle']}]"
+                        official_name,
+                        replaceUnsafeStr(f"[Season {season}][{group}]{raw_name}[{dpi}][{source}][{subtitle}]"),
                         )
             }
             downloads.append(download_info)
@@ -63,7 +66,7 @@ class FullSeasonGet:
         downloads = self.collect_season_torrents(data, torrents)
         logger.info(f"Starting download {data.get('official_title')}")
         for download in downloads:
-            download_client.add_torrent(download)
+            download_client.add_torrent(download, "老番")
         logger.info("Completed!")
 
 
