@@ -3,37 +3,27 @@ import os.path
 import re
 from pathlib import PurePath, PureWindowsPath
 
-def split_path(path: str):
-    suffix = os.path.splitext(path)[-1]
-    path = path.replace("M:\\Anime\\", "")
-    print(path)
-    path_parts = PurePath(path).parts \
-        if PurePath(path).name != path \
-        else PureWindowsPath(path).parts
-    path_name = path_parts[-1]
-    try:
-        if re.search(r"S\d{1,2}|[Ss]eason", path_parts[-2]) is not None:
-            season = int(re.search(r"\d{1,2}", path_parts[-2]).group())
-        else:
-            season = 1
-    except Exception as e:
-        season = 1
-    folder_name = path_parts[1] if path_parts[0] == "/" else path_parts[0]
-    try:
-        download_path = path_parts[1]
-    except IndexError:
-        download_path = ""
-    return path_name, season, folder_name, suffix, download_path
+SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
 
-def set_folder():
 
-    path_name, season, folder_name, suffix, download_path = split_path(r'M:\Anime\第二次被异世界召唤 (2023)\Season 1\[LoliHouse] Isekai Shoukan wa Nidome desu - 01 [WebRip 1080p HEVC-10bit AAC SRT×2].mkv')
-    print(path_name)
-    print(season)
-    print(folder_name)
-    print(suffix)
-    print(download_path)
+def init_eps_complete_search_str(data: dict):
+        test = [data.get(key).strip() for key in SEARCH_KEY if data.get(key) is not None]
+        test[1] = re.sub(r"\s\(\d+\)$", "", test[1])
+        search_str_pre = "+".join(test)
+        search_str = re.sub(r"[\W_ ]", "+", search_str_pre)
+        print(search_str)
 
-new_path = r'[LoliHouse]Edomae Elf Season 1[1080p][WebRip][简繁内封字幕]'
 
-print(re.search(r"Season (\d{1,2})", new_path).group(1))
+init_eps_complete_search_str({
+            "official_title": "为美好的世界献上爆炎！ (2023)",
+            "title_raw": "为美好的世界献上爆焰！",
+            "season": 1,
+            "season_raw": "",
+            "group": "ANi",
+            "dpi": "1080P",
+            "source": "Baha",
+            "subtitle": "CHT",
+            "added": True,
+            "eps_collect": False
+        })
+

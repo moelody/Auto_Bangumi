@@ -10,7 +10,7 @@ from module.core.download_client import DownloadClient
 from module.utils import replaceUnsafeStr
 
 logger = logging.getLogger(__name__)
-SEARCH_KEY = ["group", "title_raw", "season_raw", "subtitle", "source", "dpi"]
+SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
 
 
 class FullSeasonGet:
@@ -20,6 +20,7 @@ class FullSeasonGet:
     @staticmethod
     def init_eps_complete_search_str(data: dict):
         test = [data.get(key).strip() for key in SEARCH_KEY if data.get(key) is not None]
+        test[1] = re.sub(r"\s\(\d+\)", "", test[1])
         search_str_pre = "+".join(test)
         search_str = re.sub(r"[\W_ ]", "+", search_str_pre)
         return search_str
