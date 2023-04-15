@@ -1,4 +1,5 @@
 import logging
+import os
 import os.path
 import re
 from pathlib import PurePath, PureWindowsPath
@@ -6,24 +7,9 @@ from pathlib import PurePath, PureWindowsPath
 SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
 
 
-def init_eps_complete_search_str(data: dict):
-        test = [data.get(key).strip() for key in SEARCH_KEY if data.get(key) is not None]
-        test[1] = re.sub(r"\s\(\d+\)$", "", test[1])
-        search_str_pre = "+".join(test)
-        search_str = re.sub(r"[\W_ ]", "+", search_str_pre)
-        print(search_str)
 
+path = "E:\Anime\鬼灭之刃 刀匠村篇 01(45)\[Season 1][豌豆字幕组&风之圣殿字幕组&LoliHouse]Kimetsu no Yaiba[1080p][WebRip][简繁外挂字幕]\[BeanSub&FZSD&LoliHouse] Kimetsu no Yaiba - 45 [WebRip 1080p HEVC-10bit AAC ASSx2].ass"
 
-init_eps_complete_search_str({
-            "official_title": "为美好的世界献上爆炎！ (2023)",
-            "title_raw": "为美好的世界献上爆焰！",
-            "season": 1,
-            "season_raw": "",
-            "group": "ANi",
-            "dpi": "1080P",
-            "source": "Baha",
-            "subtitle": "CHT",
-            "added": True,
-            "eps_collect": False
-        })
+file_extension = path.split('.', 1)[-1]
 
+print(file_extension)

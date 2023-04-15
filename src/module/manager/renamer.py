@@ -1,6 +1,7 @@
 import logging
 import os.path
 import re
+import zipfile
 from pathlib import PurePath, PureWindowsPath, Path
 
 from module.core.download_client import DownloadClient
@@ -16,12 +17,12 @@ class Renamer:
     def __init__(self, download_client: DownloadClient, bangumi_info: list):
         self.client = download_client
         self.info = bangumi_info
+        self.rename_count = 0
         self._renamer = TitleParser()
 
-    @staticmethod
-    def print_result(torrent_count, rename_count):
-        if rename_count != 0:
-            logger.info(f"Finished checking {torrent_count} files' name, renamed {rename_count} files.")
+    def print_result(self, torrent_count):
+        if self.rename_count != 0:
+            logger.info(f"Finished checking {torrent_count} files' name, renamed {self.rename_count} files.")
         logger.debug(f"Checked {torrent_count} files")
 
     def get_torrent_info(self):
@@ -31,13 +32,13 @@ class Renamer:
 
     @staticmethod
     def split_path(path: str):
-        suffix = os.path.splitext(path)[-1]
         path = path.replace(settings.downloader.path, "")
         path = path.removeprefix(os.sep)
         path_parts = PurePath(path).parts \
             if PurePath(path).name != path \
             else PureWindowsPath(path).parts
         path_name = path_parts[-1]
+        suffix = "." + path_name.split('.', 1)[-1] # os.path.splitext(path_name)
         try:
             if re.search(r"S\d{1,2}|[Ss]eason", path_parts[-2]) is not None:
                 season = int(re.search(r"Season (\d{1,2})", path_parts[-2]).group(1))
@@ -54,33 +55,38 @@ class Renamer:
             download_path = ""
         return path_name, season, folder_name, suffix, download_path
 
-    def run(self):
-        recent_info, torrent_count = self.get_torrent_info()
-        rename_count = 0
-        for info in recent_info:
+    def rename_torrent(self, info):
+        try:
             name = info.name
             torrent_hash = info.hash
-            path_name, season, folder_name, suffix, _ = self.split_path(info.content_path)
-            if path_name is folder_name:
-                logger.warning("Wrong bangumi path, please check your qbittorrent settings.")
-            else:
-                try:
-                    new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
+            torrent_path = info.content_path
+            path_name, season, folder_name, suffix, _ = self.split_path(torrent_path)
+            new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
 
-                    if path_name != new_name:
-                        old_path = info.content_path.replace(info.save_path, "")
-                        old_path = old_path[len(os.path.sep):]
-                        self.client.rename_torrent_file(torrent_hash, new_name, old_path, new_name)
-                        rename_count += 1
-                    else:
-                        continue
-                except Exception as e:
-                    logger.warning(f"{path_name} rename failed")
-                    logger.warning(f"Folder name: {folder_name}, Season: {season}, Suffix: {suffix}")
-                    logger.debug(e)
-                    if settings.bangumi_manage.remove_bad_torrent:
-                        self.client.delete_torrent(torrent_hash)
-        self.print_result(torrent_count, rename_count)
+            if path_name != new_name and not zipfile.is_zipfile(torrent_path):
+                old_path = torrent_path.replace(info.save_path, "")
+                old_path = old_path[len(os.path.sep):]
+                self.client.rename_torrent_file(torrent_hash, new_name, old_path, new_name)
+                self.rename_count += 1
+            
+        except Exception as e:
+            logger.warning(f"{path_name} rename failed")
+            logger.warning(f"Folder name: {folder_name}, Season: {season}, Suffix: {suffix}")
+            logger.warning(e)
+            if settings.bangumi_manage.remove_bad_torrent:
+                self.client.delete_torrent(torrent_hash)
+
+    def run(self):
+        recent_info, torrent_count = self.get_torrent_info()
+        for info in recent_info:
+            torrent_path = info.content_path
+            if os.path.isdir(torrent_path):
+                for file in os.listdir(torrent_path):
+                    info.content_path = os.path.join(torrent_path, file)
+                    self.rename_torrent(info)
+            else:
+                self.rename_torrent(info)
+        self.print_result(torrent_count)
 
     def set_folder(self):
         recent_info, _ = self.get_torrent_info()
