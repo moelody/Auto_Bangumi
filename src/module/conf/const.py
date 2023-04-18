@@ -10,15 +10,15 @@ DEFAULT_SETTINGS = {
     "downloader": {
         "type": "qbittorrent",
         "host": "127.0.0.1:8989",
-        "username": "moelody",
-        "password": "145208",
+        "username": "",
+        "password": "",
         "path": "M:\\Anime\\",
         "ssl": False
     },
     "rss_parser": {
         "enable": True,
         "type": "mikan",
-        "link": "https://mikanani.me/RSS/MyBangumi?token=ujCfiGK5yqqqR6hyBMBnYw%3d%3d",
+        "link": "",
         "enable_tmdb": True,
         "filter": ["720", "\\d+-\\d+"],
         "language": "zh"

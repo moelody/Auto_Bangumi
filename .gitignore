@@ -168,14 +168,14 @@ cython_debug/
 
 /src/module/run_debug.sh
 /src/module/debug_run.sh
-/src/module/__version__.py
-/src/data/
+# /src/module/__version__.py
+/src/data/*
 
 /src/module/conf/config_dev.ini
 
 test.*
 .run
 
-/src/templates/
-/src/config/
+# /src/templates/
+/src/config/*
 /src/debuger.py
