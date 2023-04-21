@@ -38,7 +38,7 @@ class Renamer:
             if PurePath(path).name != path \
             else PureWindowsPath(path).parts
         path_name = path_parts[-1]
-        suffix = "." + path_name.split('.', 1)[-1] # os.path.splitext(path_name)
+        suffix = os.path.splitext(path_name)[1] # "." + path_name.split('.', 1)[-1] # os.path.splitext(path_name)
         try:
             if re.search(r"S\d{1,2}|[Ss]eason", path_parts[-2]) is not None:
                 season = int(re.search(r"Season (\d{1,2})", path_parts[-2]).group(1))
@@ -63,7 +63,13 @@ class Renamer:
             path_name, season, folder_name, suffix, _ = self.split_path(torrent_path)
             new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
 
+            suffix = path_name.split('.', 1)[-1].replace(suffix, "")
+            if (re.findall("(SC|TC)", suffix, re.I)):
+                new_name = (lambda p: p[0] + "." + suffix + p[1])(os.path.splitext(new_name))
             if path_name != new_name and not zipfile.is_zipfile(torrent_path):
+                logger.info(name)
+                logger.info(path_name)
+                logger.info(new_name)
                 old_path = torrent_path.replace(info.save_path, "")
                 old_path = old_path[len(os.path.sep):]
                 self.client.rename_torrent_file(torrent_hash, new_name, old_path, new_name)
@@ -81,9 +87,13 @@ class Renamer:
         for info in recent_info:
             torrent_path = info.content_path
             if os.path.isdir(torrent_path):
-                for file in os.listdir(torrent_path):
-                    info.content_path = os.path.join(torrent_path, file)
+                files = self.client.get_torrent_files(info.hash)
+                for file in files:
+                    info.content_path = os.path.join(torrent_path, file.name)
                     self.rename_torrent(info)
+                # for file in os.listdir(torrent_path):
+                #     info.content_path = os.path.join(torrent_path, file)
+                    # self.rename_torrent(info)
             else:
                 self.rename_torrent(info)
         self.print_result(torrent_count)
