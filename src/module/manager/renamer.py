@@ -64,7 +64,7 @@ class Renamer:
             new_name = self._renamer.download_parser(name, folder_name, season, suffix, settings.bangumi_manage.rename_method)
 
             suffix = path_name.split('.', 1)[-1].replace(suffix, "")
-            if (re.findall("(SC|TC)", suffix, re.I)):
+            if (re.findall("(SC|TC|中文)", suffix, re.I)):
                 new_name = (lambda p: p[0] + "." + suffix + p[1])(os.path.splitext(new_name))
             if path_name != new_name and not zipfile.is_zipfile(torrent_path):
                 logger.info(name)
