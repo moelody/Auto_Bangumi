@@ -20,3 +20,4 @@ uvicorn
 attrdict
 jinja2
 asyncio
+python-dotenv
