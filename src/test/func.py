@@ -4,35 +4,70 @@ import os.path
 import re
 from pathlib import PurePath, PureWindowsPath
 
+PREFIX_RE = re.compile(r"[^\w\s\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff-]")
+CHINESE_NUMBER_MAP = {
+    "一": 1,
+    "二": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+    "十": 10,
+}
+
 SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
+TITLE_RE = re.compile(
+    r"(.*|\[.*])( -? \d+|\[\d+]|\[\d+.?[vV]\d{1}]|[第]?\d+[话話集]|\[\d+.?END]|)(.*)"
+)
+def get_group(name: str) -> str:
+    return re.split(r"[\[\]]", name)[1]
+def prefix_process(raw: str, group: str) -> str:
+    raw = re.sub(f".{group}.", "", raw)
+    raw_process = PREFIX_RE.sub("/", raw)
+    arg_group = raw_process.split("/")
+    for arg in arg_group:
+        if re.search(r"新番|月?番", arg) and len(arg) <= 5:
+            raw = re.sub(f".{arg}.", "", raw)
+        elif re.search(r"港澳台地区", arg):
+            raw = re.sub(f".{arg}.", "", raw)
+    return raw
+def season_process(season_info: str):
+    name_season = season_info
+    # if re.search(r"新番|月?番", season_info):
+    #     name_season = re.sub(".*新番.", "", season_info)
+    #     # 去除「新番」信息
+    # name_season = re.sub(r"^[^]】]*[]】]", "", name_season).strip()
+    season_rule = r"S\d{1,2}|Season \d{1,2}|[第].[季期]"
+    name_season = re.sub(r"[\[\]]", " ", name_season)
+    seasons = re.findall(season_rule, name_season)
+    if not seasons:
+        return name_season, "", 1
+    name = re.sub(season_rule, "", name_season)
+    for season in seasons:
+        season_raw = season
+        if re.search(r"Season|S", season) is not None:
+            season = int(re.sub(r"Season|S", "", season))
+            break
+        elif re.search(r"[第 ].*[季期(部分)]|部分", season) is not None:
+            season_pro = re.sub(r"[第季期 ]", "", season)
+            try:
+                season = int(season_pro)
+            except ValueError:
+                season = CHINESE_NUMBER_MAP[season_pro]
+                break
+    return name, season_raw, season
 
-def split_path(path: str):
-    path = path.replace(r"E:\Anime", "")
-    path = path.removeprefix(os.sep)
-    path_parts = PurePath(path).parts \
-        if PurePath(path).name != path \
-        else PureWindowsPath(path).parts
-    path_name = path_parts[-1]
-    suffix = os.path.splitext(path_name)[1] # "." + path_name.split('.', 1)[-1] # os.path.splitext(path_name)
-    try:
-        if re.search(r"S\d{1,2}|[Ss]eason", path_parts[-2]) is not None:
-            season = int(re.search(r"Season (\d{1,2})", path_parts[-2]).group(1))
-        else:
-            season = 1
-    except Exception as e:
-        season = 1
-    folder_name = path_parts[1] if path_parts[0] == "/" else path_parts[0]
-    try:
-        download_path = path_parts[1]
-    except IndexError:
-        download_path = ""
-    return path_name, season, folder_name, suffix, download_path
+content_title = r"[Snow-Raws] 为美好的世界献上祝福！红传说/Kono Subarashii Sekai ni Shukufuku o! Kurenai Densetsu/この素晴らしい世界に祝福を！红伝说 (BD 1920x1080 HEVC-YUV420P10 FLACx2)"
 
-# path = "E:\Anime\鬼灭之刃 刀匠村篇 01(45)\[Season 1][豌豆字幕组&风之圣殿字幕组&LoliHouse]Kimetsu no Yaiba[1080p][WebRip][简繁外挂字幕]\[BeanSub&FZSD&LoliHouse] Kimetsu no Yaiba - 45 [WebRip 1080p HEVC-10bit AAC ASSx2].TC.ass"
-new_name = "1.ass"
-path_name = r"[WebRip 1080p HEVC-10bit AAC ASSx2].TC.ass"
-suffix = "TC"
-new_name = (lambda p: p[0] + "." + suffix + p[1])(os.path.splitext(new_name))
-r = re.findall("(SC|TC)", suffix, re.I)
-
-print(r)
+group = get_group(content_title)
+match_obj = TITLE_RE.match(content_title)
+season_info, episode_info, other = list(map(
+                lambda x: x.strip(), match_obj.groups()
+            ))
+process_raw = prefix_process(content_title, group)
+# 处理 前缀
+raw_name, season_raw, season = season_process(process_raw)
+print(process_raw)

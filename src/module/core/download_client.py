@@ -44,7 +44,7 @@ class DownloadClient:
             settings.downloader.path = os.path.join(prefs["save_path"], "Bangumi")
 
     def set_rule(self, info: BangumiData, rss_link):
-        official_name, raw_name, season, group = info.official_title, info.title_raw, info.season, info.group
+        official_name, raw_name, season, group, dpi, source, subtitle = info.official_title, info.title_raw, info.season, info.group, info.dpi, info.source, info.subtitle
         rule = {
             "enable": True,
             "mustContain": raw_name,
@@ -57,7 +57,7 @@ class DownloadClient:
             "ignoreDays": 0,
             "lastMatch": "",
             "addPaused": False,
-            "assignedCategory": "Bangumi",
+            "assignedCategory": "BangumiCollection",
             "savePath": str(
                 os.path.join(
                     settings.downloader.path,
@@ -97,7 +97,7 @@ class DownloadClient:
                 info.added = True
         logger.debug("Finished.")
 
-    def get_torrent_info(self, category="Bangumi"):
+    def get_torrent_info(self, category="BangumiCollection"):
         return self.client.torrents_info(
             status_filter="completed", category=category
         )
@@ -119,7 +119,7 @@ class DownloadClient:
         )
         logger.info(f"Remove bad torrents.")
 
-    def add_torrent(self, torrent: dict, category="Bangumi"):
+    def add_torrent(self, torrent: dict, category="BangumiCollection"):
         self.client.torrents_add(
             urls=torrent["url"],
             save_path=torrent["save_path"],

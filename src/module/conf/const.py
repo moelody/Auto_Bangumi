@@ -14,14 +14,14 @@ DEFAULT_SETTINGS = {
         "host": "127.0.0.1:8989",
         "username": "",
         "password": "",
-        "path": "M:\\Anime\\",
+        "path": "E:\\Anime\\",
         "ssl": False
     },
     "rss_parser": {
         "enable": True,
         "type": "mikan",
         "custom_url": "mikanani.me",
-        "token": "https://mikanani.me/RSS/MyBangumi?token=ujCfiGK5yqqqR6hyBMBnYw%3d%3d",
+        "token": "",
         "enable_tmdb": True,
         "filter": ["720", "\\d+-\\d+"],
         "language": "zh"

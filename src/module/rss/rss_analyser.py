@@ -35,19 +35,19 @@ class RSSAnalyser:
                     if re.search(info.title_raw, raw_title) is not None:
                         logger.debug(f"Had added {info.official_title} in auto_download rule before")
                         extra_add = False
-                        current_info.append(d["title_raw"])
+                        current_info.append(info.title_raw)
                         break
             if extra_add:
                 _id += 1
                 data = self._title_analyser.return_data(raw_title, _id)
                 if data is not None:
-                    current_info.append(data["title_raw"])
-                    if data["official_title"] not in bangumi_info:
+                    current_info.append(data.title_raw)
+                    if data.official_title not in bangumi_info:
                         bangumi_info.append(data)
                         
-        for d in bangumi_info:
-            if d["title_raw"] not in current_info:
-                bangumi_info.remove(d)
+        for info in bangumi_info:
+            if info.title_raw not in current_info:
+                bangumi_info.remove(info)
         return bangumi_info
 
     def rss_to_data(self, url, filter: bool = True) -> BangumiData:

@@ -138,9 +138,14 @@ class RawParser:
         # 翻译组的名字
         match_obj = TITLE_RE.match(content_title)
         # 处理标题
-        season_info, episode_info, other = list(map(
-            lambda x: x.strip(), match_obj.groups()
-        ))
+        try:
+            season_info, episode_info, other = list(map(
+                lambda x: x.strip(), match_obj.groups()
+            ))
+        except Exception as e:
+            episode_info = ""
+            season_info = content_title
+            other = self.prefix_process(content_title, group)
         process_raw = self.prefix_process(season_info, group)
         # 处理 前缀
         raw_name, season_raw, season = self.season_process(process_raw)

@@ -43,14 +43,13 @@ class FullSeasonGet:
     @staticmethod
     def collect_season_torrents(data: BangumiData, torrents):
         downloads = []
-        official_name, raw_name, season, group, dpi, source, subtitle = data["official_title"], data["title_raw"], data["season"], data["group"], data["dpi"], data["source"], data["subtitle"]
         for torrent in torrents:
             download_info = {
                 "url": torrent.torrent_link,
                 "save_path": os.path.join(
                         settings.downloader.path,
                         data.official_title,
-                        replaceUnsafeStr(f"[Season {season}][{group}]{raw_name}[{dpi}][{source}][{subtitle}]"),
+                        replaceUnsafeStr(f"[Season {data.season}][{data.group}]{data.title_raw}[{data.dpi}][{data.source}][{data.subtitle}]"),
                         )
             }
             downloads.append(download_info)
@@ -74,6 +73,7 @@ class FullSeasonGet:
         with RequestContent() as req:
             torrents = req.get_torrents(link)
         downloads = self.collect_season_torrents(data, torrents)
+        print(downloads)
         logger.info(f"Starting download {data.official_title} Season {data.season}...")
         for download in downloads:
             download_client.add_torrent(download, "老番")

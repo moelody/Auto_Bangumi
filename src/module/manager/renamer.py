@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class Renamer:
-    def __init__(self, download_client: DownloadClient, bangumi_info: list):
+    def __init__(self, download_client: DownloadClient):
         self.client = download_client
-        self.info = bangumi_info
         self.rename_count = 0
         self._renamer = TitleParser()
         self.notification = PostNotification()
@@ -26,7 +25,7 @@ class Renamer:
             logger.info(f"Finished checking {torrent_count} files' name, renamed {self.rename_count} files.")
         logger.debug(f"Checked {torrent_count} files")
 
-    def get_torrent_info(self, category="Bangumi"):
+    def get_torrent_info(self, category="BangumiCollection"):
         recent_info = self.client.get_torrent_info(category=category)
         torrent_count = len(recent_info)
         return recent_info, torrent_count
