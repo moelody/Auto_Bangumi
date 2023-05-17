@@ -26,7 +26,7 @@ class Renamer:
         logger.debug(f"Checked {torrent_count} files")
 
     def get_torrent_info(self, category="BangumiCollection"):
-        recent_info = self.client.get_torrent_info(category=category)
+        recent_info = self._client.get_torrent_info(category=category)
         torrent_count = len(recent_info)
         return recent_info, torrent_count
 
@@ -139,6 +139,7 @@ class Renamer:
                 season = int(re.findall(r"\d+", part)[0])
             elif part not in download_parts:
                 bangumi_name = part
+                break
         return bangumi_name, season
 
     @staticmethod
