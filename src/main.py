@@ -80,7 +80,7 @@ async def status():
         return False
 
 
-if VERSION != "DEV_VERSION":
+if True:
     router.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")
     templates = Jinja2Templates(directory="templates")
 
@@ -99,4 +99,5 @@ if __name__ == "__main__":
     log_config = uvicorn.config.LOGGING_CONFIG
     log_config["formatters"]["default"]["fmt"] = "[%(asctime)s] %(levelname)-8s  %(message)s"
     uvicorn.run(router, host="0.0.0.0", port=settings.program.webui_port, log_config=log_config)
+
 
