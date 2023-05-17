@@ -3,8 +3,7 @@ import logging
 import os
 
 from module.downloader import getClient
-from module.conf import settings
-from module.models import BangumiData
+from module.models import BangumiData, Config
 
 
 from module.utils import replaceUnsafeStr
@@ -13,18 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class DownloadClient:
-
-    def __init__(self):
-        self.client = getClient()
+    def __init__(self, settings: Config):
+        self.client = getClient(settings)
         self.authed = False
+        self.download_path = settings.downloader.path
+        self.group_tag = settings.bangumi_manage.group_tag
 
     def auth(self):
-        host, username, password = settings.downloader.host, settings.downloader.username, settings.downloader.password
-        try:
-            self.client.auth(host, username, password)
-            self.authed = True
-        except Exception as e:
-            logger.error(f"Can't login {host} by {username}, {e}")
+        self.client.auth()
+        self.authed = True
 
     def init_downloader(self):
         prefs = {
@@ -39,16 +35,16 @@ class DownloadClient:
         except Exception as e:
             logger.warning("Cannot add new category, maybe already exists.")
             logger.debug(e)
-        if settings.downloader.path == "":
+        if self.download_path == "":
             prefs = self.client.get_app_prefs()
-            settings.downloader.path = os.path.join(prefs["save_path"], "Bangumi")
+            self.download_path = os.path.join(prefs["save_path"], "Bangumi")
 
     def set_rule(self, info: BangumiData, rss_link):
         official_name, raw_name, season, group, dpi, source, subtitle = info.official_title, info.title_raw, info.season, info.group, info.dpi, info.source, info.subtitle
         rule = {
             "enable": True,
             "mustContain": raw_name,
-            "mustNotContain": "|".join(settings.rss_parser.filter),
+            "mustNotContain": "|".join(info.filter),
             "useRegex": True,
             "episodeFilter": "",
             "smartFilter": False,
@@ -60,13 +56,13 @@ class DownloadClient:
             "assignedCategory": "BangumiCollection",
             "savePath": str(
                 os.path.join(
-                    settings.downloader.path,
+                    self.download_path,
                     re.sub(r"[:/.]", " ", official_name).strip(),
                     replaceUnsafeStr(f"[Season {season}][{group}]{raw_name}[{dpi}][{source}][{subtitle}]"),
                 )
             ),
         }
-        rule_name = f"[{group}] {official_name}" if settings.bangumi_manage.group_tag else official_name
+        rule_name = f"[{group}] {official_name}" if self.group_tag else official_name
         self.client.rss_set_rule(rule_name=f"{rule_name} S{season}", rule_def=rule)
         logger.info(f"Add {official_name} Season {season}")
 
@@ -76,18 +72,13 @@ class DownloadClient:
         self.client.rss_remove_rule(rule_name=f"{rule_name} S{season}")
         logger.info(f"Remove {official_name} Season {season}")
 
-    def rss_feed(self, rss_link):
+    def rss_feed(self, rss_link, item_path="Mikan_RSS"):
         # TODO: 定时刷新 RSS
-        if self.client.get_rss_info() == rss_link:
-            logger.info("RSS Already exists.")
-        else:
-            logger.info("No feed exists, start adding feed.")
-            self.client.rss_add_feed(url=rss_link, item_path="Mikan_RSS")
-            logger.info("Add RSS Feed successfully.")
+        self.client.rss_add_feed(url=rss_link, item_path=item_path)
 
     def add_collection_feed(self, rss_link, item_path):
         self.client.rss_add_feed(url=rss_link, item_path=item_path)
-        logger.info("Add RSS Feed successfully.")
+        logger.info("Add Collection RSS Feed successfully.")
 
     def add_rules(self, bangumi_info: list[BangumiData], rss_link: str):
         logger.debug("Start adding rules.")

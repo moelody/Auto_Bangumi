@@ -12,16 +12,7 @@ from module.models import Config
 
 
 router = FastAPI()
-api_func = APIProcess()
-
-
-@router.on_event("startup")
-async def startup_event():
-    logger = logging.getLogger("uvicorn.access")
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)-8s  %(message)s"))
-    logger.addHandler(handler)
+api_func = APIProcess(settings)
 
 
 @router.get("/api/v1/data", tags=["info"])
@@ -58,12 +49,20 @@ def remove_rule(bangumi_id: str):
 
 @router.post("/api/v1/collection", tags=["download"])
 async def collection(link: RssLink):
-    return api_func.download_collection(link.rss_link)
+    response = api_func.download_collection(link.rss_link)
+    if response:
+        return response.dict()
+    else:
+        return {"status": "Failed to parse link"}
 
 
 @router.post("/api/v1/subscribe", tags=["download"])
 async def subscribe(link: RssLink):
-    return api_func.add_subscribe(link.rss_link)
+    response = api_func.add_subscribe(link.rss_link)
+    if response:
+        return response.dict()
+    else:
+        return {"status": "Failed to parse link"}
 
 
 @router.post("/api/v1/addRule", tags=["download"])

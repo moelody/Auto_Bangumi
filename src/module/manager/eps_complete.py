@@ -2,31 +2,29 @@ import os.path
 import re
 import logging
 
-from module.conf import settings
 from module.network import RequestContent
 
-from module.core.download_client import DownloadClient
-from module.models import BangumiData
+from module.core import DownloadClient
+from module.models import BangumiData, Config
 
 from module.utils import replaceUnsafeStr
 
 logger = logging.getLogger(__name__)
-SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
-CUSTOM_URL = "https://mikanani.me" if settings.rss_parser.custom_url == "" else settings.rss_parser.custom_url
-if "://" not in CUSTOM_URL:
-    if re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", CUSTOM_URL):
-        CUSTOM_URL = f"http://{CUSTOM_URL}"
-    CUSTOM_URL = f"https://{CUSTOM_URL}"
 
 
 class FullSeasonGet:
-    def __init__(self):
-        pass
+    def __init__(self, settings: Config):
+        self.SEARCH_KEY = ["group", "official_title", "title_raw", "season_raw", "subtitle", "source", "dpi"]
+        self.CUSTOM_URL = "https://mikanani.me" if settings.rss_parser.custom_url == "" else settings.rss_parser.custom_url
+        if "://" not in self.CUSTOM_URL:
+            if re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", self.CUSTOM_URL):
+                self.CUSTOM_URL = f"http://{self.CUSTOM_URL}"
+            self.CUSTOM_URL = f"https://{self.CUSTOM_URL}"
+        self.save_path = settings.downloader.path
 
-    @staticmethod
-    def init_eps_complete_search_str(data: BangumiData):
+    def init_eps_complete_search_str(self, data: BangumiData):
         test = []
-        for key in SEARCH_KEY:
+        for key in self.SEARCH_KEY:
             data_dict = data.dict()
             if data_dict[key] is not None:
                 test.append(data_dict[key])
@@ -37,17 +35,16 @@ class FullSeasonGet:
     def get_season_torrents(self, data: BangumiData):
         keyword = self.init_eps_complete_search_str(data)
         with RequestContent() as req:
-            torrents = req.get_torrents(f"{CUSTOM_URL}/RSS/Search?searchstr={keyword}")
-        return torrents
+            torrents = req.get_torrents(f"{self.CUSTOM_URL}/RSS/Search?searchstr={keyword}")
+        return [torrent for torrent in torrents if data.title_raw in torrent.name]
 
-    @staticmethod
-    def collect_season_torrents(data: BangumiData, torrents):
+    def collect_season_torrents(self, data: BangumiData, torrents):
         downloads = []
         for torrent in torrents:
             download_info = {
                 "url": torrent.torrent_link,
                 "save_path": os.path.join(
-                        settings.downloader.path,
+                        self.save_path,
                         data.official_title,
                         replaceUnsafeStr(f"[Season {data.season}][{data.group}]{data.title_raw}[{data.dpi}][{data.source}][{data.subtitle}]"),
                         )

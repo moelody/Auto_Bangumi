@@ -14,3 +14,7 @@ class RSSLink(str):
         if "://" not in settings.rss_parser.custom_url:
             return f"https://{settings.rss_parser.custom_url}/RSS/MyBangumi?token={settings.rss_parser.token}"
         return f"{settings.rss_parser.custom_url}/RSS/MyBangumi?token={settings.rss_parser.token}"
+
+
+PLATFORM = "Windows" if "\\" in settings.downloader.path else "Unix"
+MIKANANI_URL = "mikanani.me"
