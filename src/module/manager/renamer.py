@@ -1,7 +1,6 @@
 import logging
 import os.path
 import re
-import zipfile
 from pathlib import PurePath, PureWindowsPath, Path
 
 from module.core.download_client import DownloadClient
@@ -20,9 +19,10 @@ class Renamer:
         self._notification = PostNotification()
         self.settings = settings
 
-    def print_result(self, torrent_count):
-        if self.rename_count != 0:
-            logger.info(f"Finished checking {torrent_count} files' name, renamed {self.rename_count} files.")
+    @staticmethod
+    def print_result(torrent_count, rename_count):
+        if rename_count != 0:
+            logger.info(f"Finished checking {torrent_count} files' name, renamed {rename_count} files.")
         logger.debug(f"Checked {torrent_count} files")
 
     def get_torrent_info(self, category="BangumiCollection"):
@@ -135,11 +135,11 @@ class Renamer:
         bangumi_name = ""
         season = 1
         for part in save_parts:
-            if re.match(r"S\d+|[Ss]eason \d+", part):
-                season = int(re.findall(r"\d+", part)[0])
-            elif part not in download_parts:
+            res = re.match(r"\[(S\d+|[Ss]eason) (\d+)\]", part)
+            if res:
+                season = int(res[2])
+            elif part not in download_parts and bangumi_name == "":
                 bangumi_name = part
-                break
         return bangumi_name, season
 
     @staticmethod
@@ -198,4 +198,3 @@ class Renamer:
                     )
             else:
                 logger.warning(f"{info.name} has no media file")
-

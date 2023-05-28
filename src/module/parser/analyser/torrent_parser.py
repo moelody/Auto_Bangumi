@@ -169,4 +169,4 @@ if __name__ == '__main__':
     folder_name = "海盗战记"
     season = 2
     suffix = ".ass"
-    print(torrent_parser(title, folder_name, season, suffix, method="advance"))
+    print(torrent_parser(title, folder_name, season, suffix, method="subtitle_advance"))
