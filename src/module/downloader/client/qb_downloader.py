@@ -70,9 +70,6 @@ class QbDownloader:
     def torrents_info(self, status_filter, category, tag=None):
         return self._client.torrents_info(status_filter=status_filter, category=category, tag=tag)
 
-    def torrents_files(self, hash):
-        return self._client.torrents_files(torrent_hash=hash)
-
     def torrents_add(self, urls, save_path, category):
         return self._client.torrents_add(
             is_paused=False,
