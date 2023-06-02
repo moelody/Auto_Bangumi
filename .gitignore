@@ -177,5 +177,5 @@ test.*
 .run
 
 # /src/templates/
-/src/config/*
+# /src/config/*
 /src/debuger.py
