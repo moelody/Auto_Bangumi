@@ -40,3 +40,4 @@ def replaceUnsafeStr(str):
         reg = re.compile(rule[0])
         str = reg.sub(rule[1], str)
     return str
+
