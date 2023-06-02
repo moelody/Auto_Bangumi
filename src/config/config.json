@@ -1,0 +1,51 @@
+{
+    "program": {
+        "rss_time": 7200,
+        "rename_time": 60,
+        "webui_port": 7892
+    },
+    "downloader": {
+        "type": "qbittorrent",
+        "host": "127.0.0.1:8989",
+        "username": "",
+        "password": "",
+        "path": "E:\\Anime\\",
+        "ssl": false
+    },
+    "rss_parser": {
+        "enable": true,
+        "type": "mikan",
+        "token": "ujCfiGK5yqqqR6hyBMBnYw%3d%3d",
+        "custom_url": "mikanani.me",
+        "parser_type": "tmdb",
+        "filter": [
+            "720",
+            "\\d+-\\d"
+        ],
+        "language": "zh"
+    },
+    "bangumi_manage": {
+        "enable": true,
+        "eps_complete": false,
+        "rename_method": "advance",
+        "group_tag": true,
+        "remove_bad_torrent": false
+    },
+    "log": {
+        "debug_enable": false
+    },
+    "proxy": {
+        "enable": true,
+        "type": "http",
+        "host": "127.0.0.1",
+        "port": 4780,
+        "username": "",
+        "password": ""
+    },
+    "notification": {
+        "enable": false,
+        "type": "telegram",
+        "token": "",
+        "chat_id": ""
+    }
+}
