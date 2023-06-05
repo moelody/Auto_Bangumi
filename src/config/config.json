@@ -26,7 +26,7 @@
     },
     "bangumi_manage": {
         "enable": true,
-        "eps_complete": false,
+        "eps_complete": true,
         "rename_method": "advance",
         "group_tag": true,
         "remove_bad_torrent": false
