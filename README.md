@@ -63,6 +63,7 @@
 
 - **[部署说明 (Official)](https://github.com/EstrellaXD/Auto_Bangumi/wiki)**
 - **[2.6版本更新说明](https://github.com/EstrellaXD/Auto_Bangumi/wiki/2.6更新说明)**
+- **[3.0版本更新说明](https://github.com/EstrellaXD/Auto_Bangumi/wiki/3.0更新说明)**
 - **[部署说明 (手把手)](https://www.himiku.com/archives/auto-bangumi.html)**
 
 ## 相关群组
@@ -74,18 +75,14 @@
 
 ***开发中的功能：***
 
-- Web UI #57 ✅
-- 文件统一整理，对单个规则或者文件微调文件夹可以自动调整所有对应的文件。
-- 通知功能，可以通过 IFTTT 等方式通知用户番剧更新进度。✅
-- 剧场版以及合集的支持。✅
-- 各类 API 接口。
+- 内置 RSS 推送更新器。
+- 搜索功能
 
 ***计划开发的功能：***
 
 - 对其他站点种子的解析归类。
 - 本地化番剧订阅方式。
 - Transmission & Aria2 的支持。
-- 更完善的 WebUI。
 
 # 声明
 

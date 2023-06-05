@@ -33,6 +33,8 @@ class DownloadClient(TorrentPath):
     def __enter__(self):
         if not self.authed:
             self.auth()
+        else:
+            logger.error("[Downloader] Already authed.")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -42,7 +44,13 @@ class DownloadClient(TorrentPath):
 
     def auth(self):
         self.authed = self.client.auth()
-        logger.debug("Authed.")
+        if self.authed:
+            logger.debug("[Downloader] Authed.")
+        else:
+            logger.error("[Downloader] Auth failed.")
+
+    def check_host(self):
+        return self.client.check_host()
 
     def init_downloader(self):
         prefs = {
@@ -104,9 +112,17 @@ class DownloadClient(TorrentPath):
         logger.info(f"[Downloader] Remove torrents.")
 
     def add_torrent(self, torrent: dict):
-        self.client.torrents_add(
-            urls=torrent["url"], save_path=torrent["save_path"], category="Bangumi"
-        )
+        if self.client.torrents_add(
+            urls=torrent.get("urls"),
+            torrent_files=torrent.get("torrent_files"),
+            save_path=torrent.get("save_path"),
+            category="Bangumi"
+        ):
+            logger.debug(f"[Downloader] Add torrent: {torrent.get('save_path')}")
+            return True
+        else:
+            logger.error(f"[Downloader] Add torrent failed: {torrent.get('save_path')}")
+            return False
 
     def move_torrent(self, hashes, location):
         self.client.move_torrent(hashes=hashes, new_location=location)
