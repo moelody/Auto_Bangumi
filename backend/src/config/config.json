@@ -17,7 +17,7 @@
         "type": "mikan",
         "token": "ujCfiGK5yqqqR6hyBMBnYw%3d%3d",
         "custom_url": "mikanani.me",
-        "parser_type": "tmdb",
+        "parser_type": "mikan",
         "filter": [
             "720",
             "\\d+-\\d"

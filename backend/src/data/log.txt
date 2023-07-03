@@ -1,0 +1,17 @@
+[2023-07-03 10:21:43] INFO:     Started server process [29580]
+[2023-07-03 10:21:43] INFO:     Waiting for application startup.
+[2023-07-03 10:21:43] INFO:                     _        ____                                    _
+[2023-07-03 10:21:43] INFO:          /\        | |      |  _ \                                  (_)
+[2023-07-03 10:21:43] INFO:         /  \  _   _| |_ ___ | |_) | __ _ _ __   __ _ _   _ _ __ ___  _
+[2023-07-03 10:21:43] INFO:        / /\ \| | | | __/ _ \|  _ < / _` | '_ \ / _` | | | | '_ ` _ \| |
+[2023-07-03 10:21:43] INFO:       / ____ \ |_| | || (_) | |_) | (_| | | | | (_| | |_| | | | | | | |
+[2023-07-03 10:21:43] INFO:      /_/    \_\__,_|\__\___/|____/ \__,_|_| |_|\__, |\__,_|_| |_| |_|_|
+[2023-07-03 10:21:43] INFO:                                                 __/ |
+[2023-07-03 10:21:43] INFO:                                                |___/
+[2023-07-03 10:21:43] INFO:     Version 3.0.0  Author: EstrellaXD Twitter: https://twitter.com/Estrella_Pan
+[2023-07-03 10:21:43] INFO:     GitHub: https://github.com/EstrellaXD/Auto_Bangumi/
+[2023-07-03 10:21:43] INFO:     Starting AutoBangumi...
+[2023-07-03 10:21:43] INFO:     Config loaded
+[2023-07-03 10:21:43] INFO:     Program running.
+[2023-07-03 10:21:43] INFO:     Application startup complete.
+[2023-07-03 10:21:43] INFO:     Uvicorn running on http://0.0.0.0:7892 (Press CTRL+C to quit)

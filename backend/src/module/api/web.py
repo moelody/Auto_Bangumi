@@ -5,10 +5,8 @@ from fastapi.templating import Jinja2Templates
 
 from .proxy import router
 
-from module.conf import VERSION
 
-
-if VERSION != "DEV_VERSION":
+if True:
     router.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")
     templates = Jinja2Templates(directory="templates")
 
