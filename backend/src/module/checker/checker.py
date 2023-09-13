@@ -1,9 +1,11 @@
-import os.path
+import os
+from pathlib import Path
 
+from module.conf import settings, VERSION
 from module.downloader import DownloadClient
-from module.network import RequestContent
-from module.conf import settings
 from module.models import Config
+from module.network import RequestContent
+from module.update import version_check
 
 
 class Checker:
@@ -33,21 +35,24 @@ class Checker:
                 return False
 
     @staticmethod
-    def check_torrents() -> bool:
-        with RequestContent() as req:
-            try:
-                torrents = req.get_torrents(settings.rss_link, retry=2)
-                if torrents:
-                    return True
-            except AttributeError:
-                link = f"https://mikanani.me/RSS/MyBangumi?token={settings.rss_parser.token}"
-                if req.get_torrents(link):
-                    return True
-        return False
-
-    @staticmethod
     def check_first_run() -> bool:
         if settings.dict() == Config().dict():
             return True
         else:
             return False
+
+    @staticmethod
+    def check_version() -> bool:
+        return version_check()
+
+    @staticmethod
+    def check_database() -> bool:
+        db_path = Path("data/data.db")
+        if not db_path.exists():
+            return False
+        else:
+            return True
+
+
+if __name__ == "__main__":
+    print(Checker().check_version())

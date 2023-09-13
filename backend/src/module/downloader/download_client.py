@@ -1,9 +1,10 @@
 import logging
 
-from .path import TorrentPath
-
-from module.models import BangumiData
 from module.conf import settings
+from module.models import Bangumi, Torrent
+from module.network import RequestContent
+
+from .path import TorrentPath
 
 logger = logging.getLogger(__name__)
 
@@ -62,13 +63,13 @@ class DownloadClient(TorrentPath):
         self.client.prefs_init(prefs=prefs)
         try:
             self.client.add_category("BangumiCollection")
-        except Exception as e:
+        except Exception:
             logger.debug("[Downloader] Cannot add new category, maybe already exists.")
         if settings.downloader.path == "":
             prefs = self.client.get_app_prefs()
             settings.downloader.path = self._join_path(prefs["save_path"], "Bangumi")
 
-    def set_rule(self, data: BangumiData):
+    def set_rule(self, data: Bangumi):
         data.rule_name = self._rule_name(data)
         data.save_path = self._gen_save_path(data)
         rule = {
@@ -92,7 +93,7 @@ class DownloadClient(TorrentPath):
             f"[Downloader] Add {data.official_title} Season {data.season} to auto download rules."
         )
 
-    def set_rules(self, bangumi_info: list[BangumiData]):
+    def set_rules(self, bangumi_info: list[Bangumi]):
         logger.debug("[Downloader] Start adding rules.")
         for info in bangumi_info:
             self.set_rule(info)
@@ -111,19 +112,36 @@ class DownloadClient(TorrentPath):
 
     def delete_torrent(self, hashes):
         self.client.torrents_delete(hashes)
-        logger.info(f"[Downloader] Remove torrents.")
+        logger.info("[Downloader] Remove torrents.")
 
-    def add_torrent(self, torrent: dict):
-        if self.client.torrents_add(
-            urls=torrent.get("urls"),
-            torrent_files=torrent.get("torrent_files"),
-            save_path=torrent.get("save_path"),
+    def add_torrent(self, torrent: Torrent | list, bangumi: Bangumi) -> bool:
+        if not bangumi.save_path:
+            bangumi.save_path = self._gen_save_path(bangumi)
+        with RequestContent() as req:
+            if isinstance(torrent, list):
+                if "magnet" in torrent[0].url:
+                    torrent_url = [t.url for t in torrent]
+                    torrent_file = None
+                else:
+                    torrent_file = [req.get_content(t.url) for t in torrent]
+                    torrent_url = None
+            else:
+                if "magnet" in torrent.url:
+                    torrent_url = torrent.url
+                    torrent_file = None
+                else:
+                    torrent_file = req.get_content(torrent.url)
+                    torrent_url = None
+        if self.client.add_torrents(
+            torrent_urls=torrent_url,
+            torrent_files=torrent_file,
+            save_path=bangumi.save_path,
             category="Bangumi",
         ):
-            logger.debug(f"[Downloader] Add torrent: {torrent.get('save_path')}")
+            logger.debug(f"[Downloader] Add torrent: {bangumi.official_title}")
             return True
         else:
-            logger.error(f"[Downloader] Add torrent failed: {torrent.get('save_path')}")
+            logger.debug(f"[Downloader] Torrent added before: {bangumi.official_title}")
             return False
 
     def move_torrent(self, hashes, location):

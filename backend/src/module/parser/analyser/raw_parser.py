@@ -201,5 +201,5 @@ def raw_parser(raw: str) -> Episode | None:
 
 
 if __name__ == "__main__":
-    title = "【极影字幕·毁片党】LoveLive! SunShine!! 幻日的夜羽 -SUNSHINE in the MIRROR- 第01集 TV版 HEVC_opus 1080p"
+    title = "[动漫国字幕组&LoliHouse] THE MARGINAL SERVICE - 08 [WebRip 1080p HEVC-10bit AAC][简繁内封字幕]"
     print(raw_parser(title))

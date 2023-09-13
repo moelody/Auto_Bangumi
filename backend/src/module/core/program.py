@@ -1,20 +1,29 @@
 import logging
 
-from .sub_thread import RenameThread, RSSThread
-from .rss_feed import add_rss_feed
+from module.conf import VERSION, settings
+from module.update import data_migration, from_30_to_31, start_up, first_run
 
-from module.conf import settings, VERSION
-from module.update import data_migration
+from .sub_thread import RenameThread, RSSThread
 
 logger = logging.getLogger(__name__)
+
+figlet = r"""
+                _        ____                                    _
+     /\        | |      |  _ \                                  (_)
+    /  \  _   _| |_ ___ | |_) | __ _ _ __   __ _ _   _ _ __ ___  _
+   / /\ \| | | | __/ _ \|  _ < / _` | '_ \ / _` | | | | '_ ` _ \| |
+  / ____ \ |_| | || (_) | |_) | (_| | | | | (_| | |_| | | | | | | |
+ /_/    \_\__,_|\__\___/|____/ \__,_|_| |_|\__, |\__,_|_| |_| |_|_|
+                                            __/ |
+                                           |___/
+"""
 
 
 class Program(RenameThread, RSSThread):
     @staticmethod
     def __start_info():
-        with open("icon", "r") as f:
-            for line in f.readlines():
-                logger.info(line.strip("\n"))
+        for line in figlet.splitlines():
+            logger.info(line.strip("\n"))
         logger.info(
             f"Version {VERSION}  Author: EstrellaXD Twitter: https://twitter.com/Estrella_Pan"
         )
@@ -23,7 +32,8 @@ class Program(RenameThread, RSSThread):
 
     def startup(self):
         self.__start_info()
-        if self.first_run:
+        if self.first_run or not self.database:
+            first_run()
             logger.info("First run detected, please configure the program in webui.")
             return {"status": "First run detected."}
         if self.legacy_data:
@@ -31,6 +41,10 @@ class Program(RenameThread, RSSThread):
                 "Legacy data detected, starting data migration, please wait patiently."
             )
             data_migration()
+        elif self.version_update:
+            # Update database
+            from_30_to_31()
+            logger.info("Database updated.")
         self.start()
 
     def start(self):
@@ -42,7 +56,6 @@ class Program(RenameThread, RSSThread):
             if self.enable_renamer:
                 self.rename_start()
             if self.enable_rss:
-                add_rss_feed()
                 self.rss_start()
             logger.info("Program running.")
             return {"status": "Program started."}
@@ -62,3 +75,10 @@ class Program(RenameThread, RSSThread):
         self.stop()
         self.start()
         return {"status": "Program restarted."}
+
+    def update_database(self):
+        if not self.version_update:
+            return {"status": "No update found."}
+        else:
+            start_up(True)
+            return {"status": "Database updated."}
